@@ -609,21 +609,21 @@ function leaveChannel() {
   }, function (err) {
     console.log("client leave failed ", err); //error handling
   });
-  rtmChannel.leave().then(() => {
-    // leave-channel success
-    console.log('RTM Channel leave success');
-  }).catch(error => {
-    // join-channel failure
-    console.log('failed to leave channel with error: ' + error);
-  });
-  // log out of RTM
-  rtmClient.logout().then(() => {
-    // leave-channel success
-    console.log('RTM logout success');
-  }).catch(error => {
-    // join-channel failure
-    console.log('failed to logout with error: ' + error);
-  });
+  // rtmChannel.leave().then(() => {
+  //   // leave-channel success
+  //   console.log('RTM Channel leave success');
+  // }).catch(error => {
+  //   // join-channel failure
+  //   console.log('failed to leave channel with error: ' + error);
+  // });
+  // // log out of RTM
+  // rtmClient.logout().then(() => {
+  //   // leave-channel success
+  //   console.log('RTM logout success');
+  // }).catch(error => {
+  //   // join-channel failure
+  //   console.log('failed to logout with error: ' + error);
+  // });
 }
 
 // use tokens for added security

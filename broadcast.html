@@ -515,25 +515,24 @@
 </script>
 
 <script>
+
+	var rtmclient;
+	var rtmchannel;
+
 	let initiateRTM = async (agoraAppId, token, channelName, uid) => {
 
-		console.log(agoraAppId);
-		console.log(channelName);
+		rtmclient = await AgoraRTM.createInstance(agoraAppId)
+		await rtmclient.login({ uid, token })
 
-		let client = await AgoraRTM.createInstance(agoraAppId)
-		console.log(client);
-		await client.login({ uid, token })
-
-		const channel = await client.createChannel(channelName)
-		console.log(channel);
-		await channel.join()
+		rtmchannel = await rtmclient.createChannel(channelName)
+		await rtmchannel.join()
 
 		let form = document.getElementById('form')
 
 		form.addEventListener('submit', async (e) => {
 			e.preventDefault()
 			let message = e.target.message.value
-			await channel.sendMessage({ text: message, type: 'text' })
+			await rtmchannel.sendMessage({ text: message, type: 'text' })
 			form.reset()
 
 			console.log(message);
@@ -541,7 +540,7 @@
 			handleMessage({ text: message }, uid, 'outgoing')
 		})
 
-		channel.on('ChannelMessage', (message, peerId) => {
+		rtmchannel.on('ChannelMessage', (message, peerId) => {
 			console.log('Message:', message)
 			handleMessage(message, peerId, 'incoming')
 		})
@@ -577,13 +576,79 @@
 			console.log(message, user);
 		}
 
-		const closeChat = () => {
-			channel.leave();
-			client.logout();
-		}
-
+		// const closeChat = () => {
+		// 	channel.leave();
+		// 	client.logout();
+		// }
 
 	}
+
+
+	const closeChat = () => {
+		console.log('close chat');
+		rtmchannel.leave().then(() => {
+			console.log('leave success');
+		}).catch(error => { console.log('failed to leave channel with error: ' + error) });
+		rtmclient.logout().then(() => {
+			// leave-channel success
+			console.log('RTM logout success');
+		}).catch(error => {
+			// join-channel failure
+			console.log('failed to logout with error: ' + error);
+		});
+		closeForm();
+	}
+
+	document.getElementById('exit-btn').addEventListener('click', closeChat)
+
+	// let form = document.getElementById('form')
+
+	// form.addEventListener('submit', async (e) => {
+	// 	e.preventDefault()
+	// 	let message = e.target.message.value
+	// 	await rtmchannel.sendMessage({ text: message, type: 'text' })
+	// 	form.reset()
+
+	// 	console.log(message);
+
+	// 	handleMessage({ text: message }, uid, 'outgoing')
+	// })
+
+	// rtmchannel.on('ChannelMessage', (message, peerId) => {
+	// 	console.log('Message:', message)
+	// 	handleMessage(message, peerId, 'incoming')
+	// })
+
+
+	// let handleMessage = async (message, user, type) => {
+	// 	let messages = document.getElementById('messageBox')
+
+	// 	let messageElement;
+
+	// 	if (type === 'outgoing') {
+	// 		messageElement = `
+	// 			<div class="outgoing">
+	// 				<div class="bubble">
+	// 					<h6 style="color: white;">${user}</h6>
+	// 					<p>${message.text}</p>
+	// 				</div>
+	// 			</div>
+	// 			`;
+	// 	} else {
+	// 		messageElement = `
+	// 			<div class="incoming">
+	// 				<div class="bubble">
+	// 					<h6 style="color: white;">${user}</h6>
+	// 					<p>${message.text}</p>
+	// 				</div>
+	// 			</div>
+	// 			`;
+	// 	}
+
+	// 	messages.insertAdjacentHTML('beforeend', messageElement)
+	// 	console.log(message, user);
+	// }
+
 
 </script>
 
