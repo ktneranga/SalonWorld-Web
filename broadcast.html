@@ -493,10 +493,22 @@
 		var token = $('#form-token').val();
 		var channelName = $('#form-channel').val();
 		var uid = $("#form-uid").val();
+		var func = "j";
 		// var uid = parseInt($("#form-uid").val());
 		$("#modalForm").modal("hide");
-		initiateRTM(agoraAppId, token, channelName, uid);
+		initiateRTM(agoraAppId, token, channelName, uid, func);
 		initClientAndJoinChannel(agoraAppId, token, channelName, uid);
+	});
+	$('#exit-btn').click(function (event) {
+		var agoraAppId = $('#form-appid').val();
+		var token = $('#form-token').val();
+		var channelName = $('#form-channel').val();
+		var uid = $("#form-uid").val();
+		var func = "t";
+		// var uid = parseInt($("#form-uid").val());
+		//$("#modalForm").modal("hide");
+		initiateRTM(agoraAppId, token, channelName, uid, func);
+		closeForm()
 	});
 </script>
 <script src="ui.js"></script>
@@ -515,75 +527,93 @@
 </script>
 
 <script>
-	let initiateRTM = async (agoraAppId, token, channelName, uid) => {
+	let initiateRTM = async (agoraAppId, token, channelName, uid, func) => {
 
-		console.log(agoraAppId);
-		console.log(channelName);
+		// console.log(agoraAppId);
+		// console.log(channelName);
+		console.log(func);
 
 		let client = await AgoraRTM.createInstance(agoraAppId)
-		console.log(client);
-		await client.login({ uid, token })
+		// console.log(client);
+		//await client.login({ uid, token })
 
 		const channel = await client.createChannel(channelName)
-		console.log(channel);
-		await channel.join()
 
-		let form = document.getElementById('form')
+		// console.log(channel);
+		//await channel.join()
 
-		form.addEventListener('submit', async (e) => {
-			e.preventDefault()
-			let message = e.target.message.value
-			await channel.sendMessage({ text: message, type: 'text' })
-			form.reset()
+		if (func === 'j') {
+			console.log(func);
+			await client.login({ uid, token })
+			await channel.join()
 
-			console.log(message);
+			let form = document.getElementById('form')
 
-			handleMessage({ text: message }, uid, 'outgoing')
-		})
+			form.addEventListener('submit', async (e) => {
+				e.preventDefault()
+				let message = e.target.message.value
+				await channel.sendMessage({ text: message, type: 'text' })
+				form.reset()
 
-		channel.on('ChannelMessage', (message, peerId) => {
-			console.log('Message:', message)
-			handleMessage(message, peerId, 'incoming')
-		})
+				console.log(message);
 
-		let handleMessage = async (message, user, type) => {
-			let messages = document.getElementById('messageBox')
-			// let messageElement = `<h5>${user}</h5><p>${message.text}</p>`
-			// messages.insertAdjacentHTML('beforeend', messageElement)
+				handleMessage({ text: message }, uid, 'outgoing')
+			})
 
-			let messageElement;
+			channel.on('ChannelMessage', (message, peerId) => {
+				console.log('Message:', message)
+				handleMessage(message, peerId, 'incoming')
+			})
 
-			if (type === 'outgoing') {
-				messageElement = `
-				<div class="outgoing">
-					<div class="bubble">
-						<h6 style="color: white;">${user}</h6>
-						<p>${message.text}</p>
+			let handleMessage = async (message, user, type) => {
+				let messages = document.getElementById('messageBox')
+				// let messageElement = `<h5>${user}</h5><p>${message.text}</p>`
+				// messages.insertAdjacentHTML('beforeend', messageElement)
+
+				let messageElement;
+
+				if (type === 'outgoing') {
+					messageElement = `
+					<div class="outgoing">
+						<div class="bubble">
+							<h6 style="color: white;">${user}</h6>
+							<p>${message.text}</p>
+						</div>
 					</div>
-				</div>
-				`;
-			} else {
-				messageElement = `
-				<div class="incoming">
-					<div class="bubble">
-						<h6 style="color: white;">${user}</h6>
-						<p>${message.text}</p>
+					`;
+				} else {
+					messageElement = `
+					<div class="incoming">
+						<div class="bubble">
+							<h6 style="color: white;">${user}</h6>
+							<p>${message.text}</p>
+						</div>
 					</div>
-				</div>
-				`;
+					`;
+				}
+
+				messages.insertAdjacentHTML('beforeend', messageElement)
+				console.log(message, user);
 			}
-
-			messages.insertAdjacentHTML('beforeend', messageElement)
-			console.log(message, user);
+		} else if (func === 't') {
+			console.log(func);
+			const closeChat = () => {
+				channel.leave();
+				client.logout();
+			}
 		}
 
-		const closeChat = () => {
-			channel.leave();
-			client.logout();
-		}
+
+
+		//const closeChat = () => {
+		//	channel.leave();
+		//client.logout();
+		//}
 
 
 	}
+
+
 
 </script>
 
