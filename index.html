@@ -214,12 +214,27 @@
 			width: 280px;
 			z-index: 2000;
 		}
+
+		.exit-button {
+			background-color: rgb(175, 22, 22);
+			color: white;
+			padding: 16px 20px;
+			border: none;
+			cursor: pointer;
+			opacity: 0.8;
+			position: fixed;
+			bottom: 23px;
+			right: 28px;
+			width: 280px;
+			z-index: 2000;
+		}
 	</style>
 
 </head>
 
 <body>
 	<div class="container-fluid p-0">
+		<button id="exit-button" class="exit-button">Exit</button>
 		<div id="main-container">
 			<div id="full-screen-video"></div>
 			<div id="lower-video-bar" class="row fixed-bottom mb-1">
@@ -260,24 +275,6 @@
 
 		<button class="open-button" onclick="openForm()">Chat</button>
 
-		<!-- <div class="chat-popup" id="myForm">
-			<div class="text-center" style="color: white; background-color: #555; padding: 5px;">
-				<h4>Chat</h4>
-			</div>
-			<div style="background-color: #04AA6D;  width: 100%; box-sizing: border-box; height: 100%; z-index: 1;">
-
-			</div>
-			<div>
-				<form action="/action_page.php" class="form-container">
-					<label for="msg"><b>Message</b></label>
-					<textarea placeholder="Type message.." name="msg" required></textarea>
-
-					<button type="submit" class="btn">Send</button>
-					<button type="button" class="btn cancel" onclick="closeForm()">Close</button>
-				</form>
-			</div>
-		</div> -->
-
 		<div id="myForm" class="box-container">
 			<div class="chat_box">
 				<div class="head">
@@ -290,26 +287,7 @@
 					</ul>
 				</div>
 				<div id="messageBox" class="body">
-					<!-- <div class="incoming">
-						<div class="bubble">
-							<h6 style="color: white;">Teran</h6>
-							<p>Hey, Father's Day is coming up..</p>
-						</div>
-					</div>
-					<div class="outgoing">
-						<div class="bubble lower">
-							<h6 style="color: white;">Sapna</h6>
-							<p>Nah, it's cool.</p>
-						</div>
-					</div> -->
 
-					<!-- <div class="typing">
-						<div class="bubble">
-							<div class="ellipsis dot_1"></div>
-							<div class="ellipsis dot_2"></div>
-							<div class="ellipsis dot_3"></div>
-						</div>
-					</div> -->
 				</div>
 				<form class="foot" id="form">
 					<input id="channelMsg" type="text" class="chat-msg" name="message"
