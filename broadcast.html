@@ -344,25 +344,7 @@
 
 		<!-- chat box -->
 
-		<button class="open-button" onclick="openForm()">Chat</button>
-
-		<!-- <div class="chat-popup" id="myForm">
-			<div class="text-center" style="color: white; background-color: #555; padding: 5px;">
-				<h4>Chat</h4>
-			</div>
-			<div style="background-color: #04AA6D;  width: 100%; box-sizing: border-box; height: 100%; z-index: 1;">
-
-			</div>
-			<div>
-				<form action="/action_page.php" class="form-container">
-					<label for="msg"><b>Message</b></label>
-					<textarea placeholder="Type message.." name="msg" required></textarea>
-
-					<button type="submit" class="btn">Send</button>
-					<button type="button" class="btn cancel" onclick="closeForm()">Close</button>
-				</form>
-			</div>
-		</div> -->
+		<button id="open-button" class="open-button" onclick="openForm()">Chat</button>
 
 		<div id="myForm" class="box-container">
 			<div class="chat_box">
@@ -376,26 +358,7 @@
 					</ul>
 				</div>
 				<div id="messageBox" class="body">
-					<!-- <div class="incoming">
-						<div class="bubble">
-							<h6 style="color: white;">Teran</h6>
-							<p>Hey, Father's Day is coming up..</p>
-						</div>
-					</div>
-					<div class="outgoing">
-						<div class="bubble lower">
-							<h6 style="color: white;">Sapna</h6>
-							<p>Nah, it's cool.</p>
-						</div>
-					</div> -->
-
-					<!-- <div class="typing">
-						<div class="bubble">
-							<div class="ellipsis dot_1"></div>
-							<div class="ellipsis dot_2"></div>
-							<div class="ellipsis dot_3"></div>
-						</div>
-					</div> -->
+					<!-- msgs add here -->
 				</div>
 				<form class="foot" id="form">
 					<input id="channelMsg" type="text" class="chat-msg" name="message"
@@ -516,6 +479,9 @@
 
 <script>
 
+	var isLoggedIn = false;
+	$("#open-button").prop("disabled", true);
+
 	var rtmclient;
 	var rtmchannel;
 
@@ -523,6 +489,12 @@
 
 		rtmclient = await AgoraRTM.createInstance(agoraAppId)
 		await rtmclient.login({ uid, token })
+			.then(() => {
+				console.log('AgoraRTM client login success: Username :' + uid)
+				isLoggedIn = true;
+				console.log(isLoggedIn)
+				$("#open-button").prop("disabled", false);
+			})
 
 		rtmchannel = await rtmclient.createChannel(channelName)
 		await rtmchannel.join()
@@ -547,8 +519,6 @@
 
 		let handleMessage = async (message, user, type) => {
 			let messages = document.getElementById('messageBox')
-			// let messageElement = `<h5>${user}</h5><p>${message.text}</p>`
-			// messages.insertAdjacentHTML('beforeend', messageElement)
 
 			let messageElement;
 
@@ -575,14 +545,7 @@
 			messages.insertAdjacentHTML('beforeend', messageElement)
 			console.log(message, user);
 		}
-
-		// const closeChat = () => {
-		// 	channel.leave();
-		// 	client.logout();
-		// }
-
 	}
-
 
 	const closeChat = () => {
 		console.log('close chat');
@@ -592,6 +555,7 @@
 		rtmclient.logout().then(() => {
 			// leave-channel success
 			console.log('RTM logout success');
+			$("#open-button").prop("disabled", true);
 		}).catch(error => {
 			// join-channel failure
 			console.log('failed to logout with error: ' + error);
@@ -600,55 +564,6 @@
 	}
 
 	document.getElementById('exit-btn').addEventListener('click', closeChat)
-
-	// let form = document.getElementById('form')
-
-	// form.addEventListener('submit', async (e) => {
-	// 	e.preventDefault()
-	// 	let message = e.target.message.value
-	// 	await rtmchannel.sendMessage({ text: message, type: 'text' })
-	// 	form.reset()
-
-	// 	console.log(message);
-
-	// 	handleMessage({ text: message }, uid, 'outgoing')
-	// })
-
-	// rtmchannel.on('ChannelMessage', (message, peerId) => {
-	// 	console.log('Message:', message)
-	// 	handleMessage(message, peerId, 'incoming')
-	// })
-
-
-	// let handleMessage = async (message, user, type) => {
-	// 	let messages = document.getElementById('messageBox')
-
-	// 	let messageElement;
-
-	// 	if (type === 'outgoing') {
-	// 		messageElement = `
-	// 			<div class="outgoing">
-	// 				<div class="bubble">
-	// 					<h6 style="color: white;">${user}</h6>
-	// 					<p>${message.text}</p>
-	// 				</div>
-	// 			</div>
-	// 			`;
-	// 	} else {
-	// 		messageElement = `
-	// 			<div class="incoming">
-	// 				<div class="bubble">
-	// 					<h6 style="color: white;">${user}</h6>
-	// 					<p>${message.text}</p>
-	// 				</div>
-	// 			</div>
-	// 			`;
-	// 	}
-
-	// 	messages.insertAdjacentHTML('beforeend', messageElement)
-	// 	console.log(message, user);
-	// }
-
 
 </script>
 
