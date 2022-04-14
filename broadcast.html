@@ -214,12 +214,24 @@
 			width: 280px;
 			z-index: 2000;
 		}
+
+		#user-count-btn {
+			display: none;
+			position: absolute;
+			top: 30;
+			right: 30px;
+		}
 	</style>
 </head>
 
 <body>
 	<div class="container-fluid p-0">
 		<div id="main-container">
+
+			<!-- user count -->
+			<button id="user-count-btn" type="button" class="btn btn-primary">
+				User count: <span class="badge badge-light" id="user_count"></span>
+			</button>
 
 			<!-- stats start -->
 			<div id="stats-container" class="col-2 float-left text-left mt-2 stats-btn-container">
@@ -381,15 +393,15 @@
 					</button>
 				</div>
 				<div class="modal-body mx-3">
-					<div class="md-form mb-4">
+					<!-- <div class="md-form mb-4">
 						<input type="text" id="form-appid" value="3b7f42b76b8d41faa073f5cd9a72b3f9"
 							class="form-control">
 						<label for="form-appid">Agora AppId</label>
-					</div>
-					<div class="md-form mb-4">
+					</div> -->
+					<!-- <div class="md-form mb-4">
 						<input type="text" id="form-token" class="form-control">
 						<label for="form-token">Agora Token</label>
-					</div>
+					</div> -->
 					<div class="md-form mb-4">
 						<input type="text" id="form-channel" value="" class="form-control">
 						<label for="form-channel">Channel</label>
@@ -452,7 +464,8 @@
 <script type="text/javascript">
 	// init the session when user clicks join btn
 	$("#join-channel").click(function (event) {
-		var agoraAppId = $('#form-appid').val();
+		// var agoraAppId = $('#form-appid').val(); 
+		var agoraAppId = "3b7f42b76b8d41faa073f5cd9a72b3f9"
 		var token = $('#form-token').val();
 		var channelName = $('#form-channel').val();
 		var uid = $("#form-uid").val();
@@ -475,6 +488,15 @@
 	function closeForm() {
 		document.getElementById("myForm").style.display = "none";
 	}
+
+	function showUserCount() {
+		document.getElementById("user-count-btn").style.display = "block";
+	}
+
+	function hideUserCount() {
+		document.getElementById("user-count-btn").style.display = "none";
+	}
+
 </script>
 
 <script>
@@ -484,6 +506,7 @@
 
 	var rtmclient;
 	var rtmchannel;
+	var membersCount;
 
 	let initiateRTM = async (agoraAppId, token, channelName, uid) => {
 
@@ -498,6 +521,23 @@
 
 		rtmchannel = await rtmclient.createChannel(channelName)
 		await rtmchannel.join()
+
+		function GetMembers() {
+			let count;
+			setInterval(() => {
+				rtmchannel.getMembers().then((memberNames) => {
+					/* memberNames contains an array of the names of the members*/
+					document.getElementById('user_count').innerHTML = memberNames.length;
+					// console.log(memberNames.length)
+				})
+			}, 1000)
+			return count;
+		}
+
+		GetMembers();
+
+		// document.getElementById('user_count').innerHTML = membersCount;
+
 
 		let form = document.getElementById('form')
 
@@ -564,6 +604,12 @@
 	}
 
 	document.getElementById('exit-btn').addEventListener('click', closeChat)
+
+	function GetMembers() {
+		rtm.channels[name].channel.getMembers().then((memberNames) => {
+			/* memberNames contains an array of the names of the members*/
+		})
+	}
 
 </script>
 

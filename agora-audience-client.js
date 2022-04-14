@@ -3,7 +3,7 @@
  */
 
 // create client 
-var client = AgoraRTC.createClient({mode: 'live', codec: 'vp8'}); // vp8 to work across mobile devices
+var client = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' }); // vp8 to work across mobile devices
 
 // stream references (keep track of active streams) 
 var remoteStreams = {}; // remote streams obj struct [id : stream] 
@@ -11,11 +11,11 @@ var remoteStreams = {}; // remote streams obj struct [id : stream]
 // set log level:
 // -- .DEBUG for dev 
 // -- .NONE for prod
-AgoraRTC.Logger.setLogLevel(AgoraRTC.Logger.DEBUG); 
-$( document ).ready( function() {
+AgoraRTC.Logger.setLogLevel(AgoraRTC.Logger.DEBUG);
+$(document).ready(function () {
   // Due to broswer restrictions on auto-playing video, 
   // user must click to init and join channel
-  $("#watch-live-btn").click(function(){
+  $("#watch-live-btn").click(function () {
     console.log("user clicked to watch broadcast")
     var agoraAppId = $('#form-appid').val(); // set app id
     var token = $('#form-token').val();
@@ -54,7 +54,7 @@ client.on('stream-subscribed', function (evt) {
   var remoteId = remoteStream.getId();
   remoteStreams[remoteId] = remoteStream;
   console.log("Subscribe remote stream successfully: " + remoteId);
-  if( $('#full-screen-video').is(':empty') ) { 
+  if ($('#full-screen-video').is(':empty')) {
     mainStreamId = remoteId;
     remoteStream.play('full-screen-video');
   } else if (remoteId == 49024) {
@@ -64,7 +64,7 @@ client.on('stream-subscribed', function (evt) {
     addRemoteStreamMiniView(remoteStreams[mainStreamId]); // send the main video stream to a container
     // set the screen-share as the main 
     mainStreamId = remoteId;
-    remoteStream.play('full-screen-video');s
+    remoteStream.play('full-screen-video'); s
   } else {
     client.setRemoteVideoStreamType(remoteStream, 1); // subscribe to the low stream
     addRemoteStreamMiniView(remoteStream);
@@ -72,16 +72,16 @@ client.on('stream-subscribed', function (evt) {
 });
 
 // remove the remote-container when a user leaves the channel
-client.on("peer-leave", function(evt) {
+client.on("peer-leave", function (evt) {
   var streamId = evt.uid; // the the stream id
-  if(remoteStreams[streamId] != undefined) {
+  if (remoteStreams[streamId] != undefined) {
     remoteStreams[streamId].stop(); // stop playing the feed
     delete remoteStreams[streamId]; // remove stream from list
     if (streamId == mainStreamId || streamId == 49024) {
       // swap out the video
       var streamIds = Object.keys(remoteStreams);
       if (streamIds.length > 0) {
-        var randomId = streamIds[Math.floor(Math.random()*streamIds.length)]; // select from the remaining streams
+        var randomId = streamIds[Math.floor(Math.random() * streamIds.length)]; // select from the remaining streams
         remoteStreams[randomId].stop(); // stop the stream's existing playback
         var remoteContainerID = '#' + randomId + '_container';
         $(remoteContainerID).empty().remove(); // remove the stream's miniView container
@@ -98,7 +98,7 @@ client.on("peer-leave", function(evt) {
 });
 
 // remove the remote-container when a user leaves the channel
-client.on('peer-leave', function(evt) {
+client.on('peer-leave', function (evt) {
   console.log('Remote stream has left the channel: ' + evt.uid);
   evt.stream.stop(); // stop the stream
 });
@@ -124,23 +124,25 @@ client.on('unmute-video', function (evt) {
 // join a channel
 function joinChannel(token, channelName) {
   // set the role
-  client.setClientRole('audience', function() {
+  client.setClientRole('audience', function () {
     console.log('Client role set to audience');
-  }, function(e) {
+  }, function (e) {
     console.log('setClientRole failed', e);
   });
-  
-  client.join(token, channelName, 0, function(uid) {
-      console.log('User ' + uid + ' join channel successfully');
-  }, function(err) {
-      console.log('[ERROR] : join channel failed', err);
+
+  client.join(token, channelName, 0, function (uid) {
+    console.log('User ' + uid + ' join channel successfully');
+    showExitButton()
+  }, function (err) {
+    console.log('[ERROR] : join channel failed', err);
   });
 }
 
 function leaveChannel() {
-  client.leave(function() {
+  client.leave(function () {
     console.log('client leaves channel');
-  }, function(err) {
+    location.reload();
+  }, function (err) {
     console.log('client leave failed ', err); //error handling
   });
 }
@@ -152,25 +154,25 @@ function generateToken() {
 
 
 // REMOTE STREAMS UI
-function addRemoteStreamMiniView(remoteStream){
+function addRemoteStreamMiniView(remoteStream) {
   var streamId = remoteStream.getId();
   // append the remote stream template to #remote-streams
   $('#remote-streams').append(
-    $('<div/>', {'id': streamId + '_container',  'class': 'remote-stream-container col'}).append(
-      $('<div/>', {'id': streamId + '_mute', 'class': 'mute-overlay'}).append(
-          $('<i/>', {'class': 'fas fa-microphone-slash'})
+    $('<div/>', { 'id': streamId + '_container', 'class': 'remote-stream-container col' }).append(
+      $('<div/>', { 'id': streamId + '_mute', 'class': 'mute-overlay' }).append(
+        $('<i/>', { 'class': 'fas fa-microphone-slash' })
       ),
-      $('<div/>', {'id': streamId + '_no-video', 'class': 'no-video-overlay text-center'}).append(
-        $('<i/>', {'class': 'fas fa-user'})
+      $('<div/>', { 'id': streamId + '_no-video', 'class': 'no-video-overlay text-center' }).append(
+        $('<i/>', { 'class': 'fas fa-user' })
       ),
-      $('<div/>', {'id': 'agora_remote_' + streamId, 'class': 'remote-video'})
+      $('<div/>', { 'id': 'agora_remote_' + streamId, 'class': 'remote-video' })
     )
   );
-  remoteStream.play('agora_remote_' + streamId); 
+  remoteStream.play('agora_remote_' + streamId);
   var containerId = '#' + streamId + '_container';
-  var remoteMicBtnID = '#' + streamId +'-mic-btn';
+  var remoteMicBtnID = '#' + streamId + '-mic-btn';
   // play the miniview as fullscreen
-  $(containerId).dblclick(function() {
+  $(containerId).dblclick(function () {
     // play selected container as full screen - swap out current full screen stream
     remoteStreams[mainStreamId].stop(); // stop the main video stream playback
     addRemoteStreamMiniView(remoteStreams[mainStreamId]); // send the main video stream to a container
