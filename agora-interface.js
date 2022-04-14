@@ -273,6 +273,7 @@ function joinChannel(channelName, uid, token) {
   client.join(token, channelName, uid, function (uid) {
     console.log("User " + uid + " join channel successfully");
     createCameraStream(uid);
+    showUserCount();
     localStreams.camera.id = uid; // keep track of the stream uid 
   }, function (err) {
     console.log("[ERROR] : join channel failed", err);
@@ -579,6 +580,7 @@ function leaveChannel() {
 
   client.leave(function () {
     console.log("client leaves channel");
+    hideUserCount();
     localStreams.camera.stream.stop() // stop the camera stream playback
     client.unpublish(localStreams.camera.stream); // unpublish the camera stream
     localStreams.camera.stream.close(); // clean up and close the camera stream

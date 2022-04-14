@@ -216,6 +216,7 @@
 		}
 
 		.exit-button {
+			display: none;
 			background-color: rgb(175, 22, 22);
 			color: white;
 			padding: 16px 20px;
@@ -248,12 +249,12 @@
 		<div id="watch-live-overlay">
 			<div id="overlay-container">
 				<div class="col-md text-center">
-					<div class="md-form mb-4">
+					<div class="md-form mb-4" style="display: none;">
 						<input type="text" id="form-appid" value="3b7f42b76b8d41faa073f5cd9a72b3f9"
 							class="form-control">
 						<label for="form-appid">Agora AppId</label>
 					</div>
-					<div class="md-form mb-4">
+					<div class="md-form mb-4" style="display: none;">
 						<input type="text" id="form-token" class="form-control">
 						<label for="form-token">Agora Token</label>
 					</div>
@@ -273,7 +274,7 @@
 		</div>
 		<!-- chat box -->
 
-		<button class="open-button" onclick="openForm()">Chat</button>
+		<button id="open-button" class="open-button" onclick="openForm()">Chat</button>
 
 		<div id="myForm" class="box-container">
 			<div class="chat_box">
@@ -331,12 +332,17 @@
 	function closeForm() {
 		document.getElementById("myForm").style.display = "none";
 	}
+
+	function showExitButton() {
+		document.getElementById("exit-button").style.display = "block";
+	}
 </script>
 
 <script type="text/javascript">
 	// init the session when user clicks join btn
 	$("#watch-live-btn").click(function (event) {
-		var agoraAppId = $('#form-appid').val();
+		// var agoraAppId = $('#form-appid').val(); 3b7f42b76b8d41faa073f5cd9a72b3f9
+		var agoraAppId = "3b7f42b76b8d41faa073f5cd9a72b3f9";
 		var token = $('#form-token').val();
 		var channelName = $('#form-channel').val();
 		var uid = $("#form-uid").val();
@@ -348,25 +354,33 @@
 </script>
 
 <script>
-	let initiateRTM = async (agoraAppId, token, channelName, uid) => {
 
-		console.log(agoraAppId);
-		console.log(channelName);
+	var isLoggedIn = false;
+	$("#open-button").prop("disabled", true);
 
-		let client = await AgoraRTM.createInstance(agoraAppId)
-		console.log(client);
-		await client.login({ uid, token })
+	var rtmclient;
+	var rtmchannel;
 
-		const channel = await client.createChannel(channelName)
-		console.log(channel);
-		await channel.join()
+	let initiateRTM = async (agoraAppId, channelName, uid) => {
+
+		rtmclient = await AgoraRTM.createInstance(agoraAppId)
+		await rtmclient.login({ uid, token })
+			.then(() => {
+				console.log('AgoraRTM client login success: Username :' + uid)
+				isLoggedIn = true;
+				console.log(isLoggedIn)
+				$("#open-button").prop("disabled", false);
+			})
+
+		rtmchannel = await rtmclient.createChannel(channelName)
+		await rtmchannel.join()
 
 		let form = document.getElementById('form')
 
 		form.addEventListener('submit', async (e) => {
 			e.preventDefault()
 			let message = e.target.message.value
-			await channel.sendMessage({ text: message, type: 'text' })
+			await rtmchannel.sendMessage({ text: message, type: 'text' })
 			form.reset()
 
 			console.log(message);
@@ -374,15 +388,13 @@
 			handleMessage({ text: message }, uid, 'outgoing')
 		})
 
-		channel.on('ChannelMessage', (message, peerId) => {
+		rtmchannel.on('ChannelMessage', (message, peerId) => {
 			console.log('Message:', message)
 			handleMessage(message, peerId, 'incoming')
 		})
 
 		let handleMessage = async (message, user, type) => {
 			let messages = document.getElementById('messageBox')
-			// let messageElement = `<h5>${user}</h5><p>${message.text}</p>`
-			// messages.insertAdjacentHTML('beforeend', messageElement)
 
 			let messageElement;
 
@@ -410,6 +422,29 @@
 			console.log(message, user);
 		}
 	}
+
+
+	const leaveWatching = () => {
+		closeChat();
+		leaveChannel();
+	}
+
+	const closeChat = () => {
+		rtmchannel.leave().then(() => {
+			console.log('leave success');
+		}).catch(error => { console.log('failed to leave channel with error: ' + error) });
+		rtmclient.logout().then(() => {
+			// leave-channel success
+			console.log('RTM logout success');
+			$("#open-button").prop("disabled", true);
+		}).catch(error => {
+			// join-channel failure
+			console.log('failed to logout with error: ' + error);
+		});
+		closeForm();
+	}
+
+	document.getElementById('exit-button').addEventListener('click', leaveWatching)
 
 </script>
 
